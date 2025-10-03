@@ -3,8 +3,8 @@
 1. Clona el repositorio:
 
     ```bash
-    git clone https://github.com/miguepoloc/especializacion_ds
-    cd especializacion_ds
+    git clone https://github.com/ramonacuna/Gestor_de_Tareas.git
+    cd Gestor_de_Tareas
     ```
 
 2. Crea y activa un entorno virtual:
