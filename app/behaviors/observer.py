@@ -12,6 +12,9 @@ class Event:
 tarea_created = Event()
 
 def send_email_notification(tarea):
-    print(f"📧 Notificación: Nueva tarea creada -> {tarea.title}")
+    print(f"Notificación: Nueva tarea creada -> {tarea.title}")
+
+def send_push_notification(tarea):
+    print(f"Push: Se creó una nueva tarea '{tarea.title}'")
 
 tarea_created.subscribe(send_email_notification)
