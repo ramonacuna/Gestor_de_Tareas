@@ -10,7 +10,7 @@ class InterfazRepositorio:
     def get_all(self) -> List[Tarea]:
         pass
 
-    def get_by_id(self, task_id: int) -> Optional[Tarea]:
+    def get_by_id(self, Tarea_id: int) -> Optional[Tarea]:
         pass
 
     def update(self, tarea: Tarea) -> Tarea:

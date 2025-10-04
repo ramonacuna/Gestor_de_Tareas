@@ -1,22 +1,23 @@
 from pydantic import BaseModel
 
 class CrearTarea(BaseModel):
-    titulo : str
-    descripcion : str
+    title : str
+    description : str
 
 class ActualizarTarea(BaseModel):
-    titulo: str
-    descripcion: str
-    completado: bool
+    title: str
+    description: str
+    completed: bool
 
 class RespuestaTarea(BaseModel):
     id : int
-    titulo : str
-    descripcion: str 
-    completado: bool
+    title : str
+    description: str 
+    completed: bool
 
     class Config:
-        orm_mode = True
+        orm_attributes = True
 
 
 
+        

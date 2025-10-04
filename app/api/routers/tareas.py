@@ -1,37 +1,34 @@
-from fastapi import APIRouter, Depends,HTTPException
-from typing import List
-from app.schemas.task_schema import CrearTarea,ActualizarTarea,RespuestaTarea
-from app.repositories.task_repository import MemoriaRepositorio
-from app.services.task_service import ServicioTarea
+from fastapi import APIRouter, Query
+from app.schemas.task_schema import CrearTarea, ActualizarTarea
+from app.repositories.factory import RepositoryFactory
+from app.repositories.decorators import TareaRepositoryLogger
+from app.repositories.proxies import SecureTareaRepositoryProxy
+from app.services.task_service import TareaService
+from app.facade.app_facade import AppFacade
+from app.behaviors.strategy import SortById, SortByTitle, SortByCompleted
 
 router = APIRouter()
 
-#Inyeccion dependencia
-#def get_servicioTarea():
-#repositorio = MemoriaRepositorio()
-#return ServicioTarea(repositorio)
+repo = RepositoryFactory.create_repository()
+repo = TareaRepositoryLogger(repo)
+repo = SecureTareaRepositoryProxy(repo, role="admin")
 
-repositorio = MemoriaRepositorio()
-servicio = ServicioTarea(repositorio)
-def get_servicioTarea():
-    return servicio
+tarea_service = TareaService(repo)
+facade = AppFacade(tarea_service)
 
-@router.post("/", response_model=RespuestaTarea)
-def crearTarea(tarea: CrearTarea, servicio: ServicioTarea = Depends(get_servicioTarea)):
-    return servicio.crearTarea(tarea)
+@router.post("/")
+def create_tarea(tarea: CrearTarea):
+    return facade.create_tarea(tarea)
 
-@router.get("/", response_model=List[RespuestaTarea])
-def listarTareas(servicio: ServicioTarea = Depends(get_servicioTarea)):
-    return servicio.listarTareas()
+@router.get("/")
+def list_tareas(sort_by: str = Query("id", enum=["id", "title", "completed"])):
+    strategies = {"id": SortById(), "title": SortByTitle(), "completed": SortByCompleted()}
+    return facade.list_tareas(strategy=strategies.get(sort_by))
 
-@router.get("/{idTarea}", response_model=RespuestaTarea)
-def traerTarea(idTarea: int, servicio:ServicioTarea = Depends(get_servicioTarea)):
-    try:
-        return servicio.traerTarea(idTarea)
-    except ValueError:
-        raise HTTPException(status_code=404,detail="No se encontro la tarea")
-    
-@router.delete("/{idTarea}")
-def borrarTarea(idTarea: int, service: ServicioTarea = Depends(get_servicioTarea)):
-    service.borrarTarea(idTarea)
-    return{"message":"Tarea borrada"}
+@router.put("/{tarea_id}")
+def update_tarea(tarea_id: int, tarea: ActualizarTarea):
+    return facade.update_tarea(tarea_id, tarea)
+
+@router.delete("/{tarea_id}")
+def delete_tarea(tarea_id: int):
+    return facade.delete_tarea(tarea_id)
